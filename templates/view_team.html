@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ team.name }} - Team Profile{% endblock %}
+
+{% block content %}
+<div class="profile-page team-profile-page">
+    <div class="profile-header team-header-full">
+        {% if team.tag %}
+            <div class="team-tag-display">{{ team.tag }}</div>
+        {% endif %}
+        <div class="profile-title">
+            <h1 class="profile-name">{{ team.name }}</h1>
+            {% if team.description %}
+                <p class="profile-description">{{ team.description }}</p>
+            {% endif %}
+        </div>
+        <div class="profile-status">
+            {% if team.looking_for_players %}
+                <span class="status-badge status-active status-large">Recruiting Players</span>
+            {% else %}
+                <span class="status-badge status-inactive status-large">Not Recruiting</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="profile-grid">
+        <div class="profile-main">
+            <!-- Requirements -->
+            {% if team.requirements %}
+                <div class="profile-card">
+                    <h2 class="card-title">Requirements</h2>
+                    <p class="requirements-full">{{ team.requirements }}</p>
+                </div>
+            {% endif %}
+            
+            <!-- Roster -->
+            <div class="profile-card">
+                <h2 class="card-title">Roster ({{ members|length }} members)</h2>
+                {% if members %}
+                    <div class="roster-list">
+                        {% for member in members %}
+                            <div class="roster-item">
+                                <div class="roster-info">
+                                    <a href="{{ url_for('view_player', player_id=member.player_id) }}" class="roster-name">
+                                        {{ member.game_username }}
+                                        {% if member.role == 'Captain' %}
+                                            <span class="captain-badge">CAPTAIN</span>
+                                        {% endif %}
+                                    </a>
+                                    <p class="roster-details">{{ member.rank }} • {{ member.role }} • {{ member.main_agent }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-roster">No team members yet.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="profile-sidebar">
+            <!-- Captain Info -->
+            <div class="profile-card">
+                <h3 class="sidebar-title">Captain</h3>
+                <p class="captain-name">{{ team.captain_name }}</p>
+            </div>
+            
+            <!-- Actions -->
+            <div class="profile-card actions-card">
+                <h3 class="sidebar-title">Actions</h3>
+                
+                {% if is_captain %}
+                    <a href="{{ url_for('edit_team') }}" class="btn btn-primary btn-block">Manage Team</a>
+                {% elif can_apply %}
+                    {% if already_applied %}
+                        <button class="btn btn-outline btn-block" disabled>Application Pending</button>
+                    {% else %}
+                        <form method="POST" action="{{ url_for('apply_to_team', team_id=team.id) }}">
+                            <div class="form-group">
+                                <textarea name="message" rows="3" placeholder="Introduce yourself (optional)" class="form-input"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Apply to Join</button>
+                        </form>
+                    {% endif %}
+                {% elif not session.user_id %}
+                    <p class="login-hint">Login to apply to this team.</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline btn-block">Login</a>
+                {% else %}
+                    <p class="login-hint">Create a player profile to apply.</p>
+                {% endif %}
+            </div>
+            
+            <!-- Leave Team Option -->
+            {% if not is_captain %}
+                {% for member in members %}
+                    {% if member.game_username == session.username or member.player_id == player_id %}
+                        <div class="profile-card danger-card">
+                            <h3 class="sidebar-title danger">Leave Team</h3>
+                            <form method="POST" action="{{ url_for('leave_team') }}" onsubmit="return confirm('Are you sure you want to leave this team?');">
+                                <button type="submit" class="btn btn-danger btn-block">Leave Team</button>
+                            </form>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

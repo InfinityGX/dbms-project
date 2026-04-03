@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - Valorant Team Finder{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card large">
+        <div class="form-header">
+            <h1 class="form-title">EDIT PROFILE</h1>
+            <p class="form-subtitle">Update your Valorant player profile</p>
+        </div>
+        
+        <form method="POST" class="profile-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="game_username">Game Username *</label>
+                    <input type="text" id="game_username" name="game_username" required 
+                           value="{{ player.game_username }}" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="rank">Current Rank *</label>
+                    <select id="rank" name="rank" required class="form-input">
+                        {% set ranks = ['Iron 1', 'Iron 2', 'Iron 3', 'Bronze 1', 'Bronze 2', 'Bronze 3',
+                                       'Silver 1', 'Silver 2', 'Silver 3', 'Gold 1', 'Gold 2', 'Gold 3',
+                                       'Platinum 1', 'Platinum 2', 'Platinum 3', 'Diamond 1', 'Diamond 2', 'Diamond 3',
+                                       'Ascendant 1', 'Ascendant 2', 'Ascendant 3', 'Immortal 1', 'Immortal 2', 'Immortal 3',
+                                       'Radiant'] %}
+                        {% for r in ranks %}
+                            <option value="{{ r }}" {% if player.rank == r %}selected{% endif %}>{{ r }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="role">Primary Role *</label>
+                    <select id="role" name="role" required class="form-input">
+                        {% set roles = ['Duelist', 'Initiator', 'Controller', 'Sentinel', 'Flex'] %}
+                        {% for role in roles %}
+                            <option value="{{ role }}" {% if player.role == role %}selected{% endif %}>{{ role }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="main_agent">Main Agent</label>
+                    <input type="text" id="main_agent" name="main_agent" 
+                           value="{{ player.main_agent or '' }}" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="kd_ratio">K/D Ratio</label>
+                    <input type="number" id="kd_ratio" name="kd_ratio" step="0.01" min="0" max="10"
+                           value="{{ player.kd_ratio or '' }}" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="availability">Availability</label>
+                    <input type="text" id="availability" name="availability" 
+                           value="{{ player.availability or '' }}" class="form-input">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="bio">Bio</label>
+                <textarea id="bio" name="bio" rows="3" class="form-input">{{ player.bio or '' }}</textarea>
+            </div>
+            
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="mic" value="1" {% if player.mic %}checked{% endif %}>
+                    <span class="checkmark"></span>
+                    I have a microphone
+                </label>
+            </div>
+            
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="looking_for_team" value="1" {% if player.looking_for_team %}checked{% endif %}>
+                    <span class="checkmark"></span>
+                    I'm looking for a team
+                </label>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-large">Save Changes</button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

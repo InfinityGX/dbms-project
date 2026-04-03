@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome - Valorant Team Finder{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">FIND YOUR <span class="highlight">PERFECT</span> TEAM</h1>
+        <p class="hero-subtitle">Connect with skilled Valorant players in your college. Build your dream team and dominate the competition.</p>
+        <div class="hero-buttons">
+            <a href="{{ url_for('list_players') }}" class="btn btn-primary btn-large">Find Players</a>
+            <a href="{{ url_for('list_teams') }}" class="btn btn-outline btn-large">Find Teams</a>
+        </div>
+    </div>
+    <div class="hero-stats">
+        <div class="stat-item">
+            <span class="stat-number">{{ players|length + teams|length }}</span>
+            <span class="stat-label">Active Players & Teams</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number">5v5</span>
+            <span class="stat-label">Competitive Teams</span>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">Players Looking for Teams</h2>
+        <a href="{{ url_for('list_players') }}" class="btn btn-sm">View All</a>
+    </div>
+    
+    {% if players %}
+        <div class="grid grid-3">
+            {% for player in players %}
+                <div class="card player-card">
+                    <div class="card-header">
+                        <div class="player-rank">{{ player.rank }}</div>
+                        <div class="player-role-badge">{{ player.role }}</div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="player-name">{{ player.game_username }}</h3>
+                        <p class="player-meta">@{{ player.username }}</p>
+                        {% if player.main_agent %}
+                            <div class="player-agent">
+                                <span class="label">Main:</span>
+                                <span class="value">{{ player.main_agent }}</span>
+                            </div>
+                        {% endif %}
+                        {% if player.kd_ratio %}
+                            <div class="player-kd">
+                                <span class="label">K/D:</span>
+                                <span class="value">{{ player.kd_ratio }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('view_player', player_id=player.id) }}" class="btn btn-block">View Profile</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>No players are currently looking for teams.</p>
+            {% if not session.user_id %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Create Your Profile</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+
+<section class="section section-alt">
+    <div class="section-header">
+        <h2 class="section-title">Teams Recruiting Players</h2>
+        <a href="{{ url_for('list_teams') }}" class="btn btn-sm">View All</a>
+    </div>
+    
+    {% if teams %}
+        <div class="grid grid-3">
+            {% for team in teams %}
+                <div class="card team-card">
+                    <div class="card-header team-header">
+                        <div class="team-tag">{{ team.tag }}</div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="team-name">{{ team.name }}</h3>
+                        <p class="team-captain">Captain: {{ team.captain_id }}</p>
+                        {% if team.requirements %}
+                            <p class="team-requirements">{{ team.requirements[:100] }}{% if team.requirements|length > 100 %}...{% endif %}</p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('view_team', team_id=team.id) }}" class="btn btn-block">View Team</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>No teams are currently recruiting.</p>
+            {% if session.user_id %}
+                <a href="{{ url_for('create_team') }}" class="btn btn-primary">Create Your Team</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+
+<section class="section features-section">
+    <div class="section-header centered">
+        <h2 class="section-title">How It Works</h2>
+    </div>
+    <div class="grid grid-3">
+        <div class="feature-card">
+            <div class="feature-icon">👤</div>
+            <h3>Create Profile</h3>
+            <p>Sign up and create your player profile with your rank, role, main agent, and stats.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <h3>Find Matches</h3>
+            <p>Browse players and teams that match your skill level, availability, and play style.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🤝</div>
+            <h3>Connect & Play</h3>
+            <p>Apply to teams or accept players. Build your squad and dominate together.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

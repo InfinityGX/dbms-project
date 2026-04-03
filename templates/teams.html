@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Teams - Valorant Team Finder{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">FIND TEAMS</h1>
+    <p class="page-subtitle">Browse teams recruiting players</p>
+</div>
+
+<div class="filters-section">
+    <form method="GET" class="filters-form simple">
+        <div class="filter-group checkbox-filter">
+            <label class="checkbox-label">
+                <input type="checkbox" name="looking" value="1" {% if looking_only %}checked{% endif %}>
+                <span class="checkmark"></span>
+                Recruiting only
+            </label>
+        </div>
+        
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary">Apply</button>
+            <a href="{{ url_for('list_teams') }}" class="btn btn-outline">Clear</a>
+        </div>
+    </form>
+</div>
+
+<div class="results-count">
+    <p>Showing {{ teams|length }} team(s)</p>
+</div>
+
+{% if teams %}
+    <div class="grid grid-3">
+        {% for team in teams %}
+            <div class="card team-card">
+                <div class="card-header team-header">
+                    {% if team.tag %}
+                        <div class="team-tag-large">{{ team.tag }}</div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h3 class="team-name">{{ team.name }}</h3>
+                    <p class="team-captain">Captain: {{ team.captain_name }}</p>
+                    
+                    {% if team.requirements %}
+                        <div class="team-requirements-preview">
+                            <span class="requirements-label">Looking for:</span>
+                            <p class="requirements-text">{{ team.requirements[:100] }}{% if team.requirements|length > 100 %}...{% endif %}</p>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="team-status">
+                        {% if team.looking_for_players %}
+                            <span class="status-badge status-active">Recruiting</span>
+                        {% else %}
+                            <span class="status-badge status-inactive">Not Recruiting</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('view_team', team_id=team.id) }}" class="btn btn-block">View Team</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <p>No teams found matching your criteria.</p>
+        {% if session.user_id %}
+            <a href="{{ url_for('create_team') }}" class="btn btn-primary">Create Your Team</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

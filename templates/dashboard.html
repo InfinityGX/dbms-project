@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Valorant Team Finder{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Welcome, {{ session.username }}</h1>
+        <p class="dashboard-subtitle">Manage your profile and team</p>
+    </div>
+    
+    <div class="dashboard-grid">
+        <!-- Player Profile Section -->
+        <div class="dashboard-card">
+            <div class="card-header-section">
+                <h2 class="card-title">Player Profile</h2>
+                {% if player %}
+                    <span class="status-badge {% if player.looking_for_team %}status-active{% else %}status-inactive{% endif %}">
+                        {% if player.looking_for_team %}Looking for Team{% else %}Not Looking{% endif %}
+                    </span>
+                {% endif %}
+            </div>
+            
+            {% if player %}
+                <div class="profile-preview">
+                    <div class="preview-row">
+                        <span class="preview-label">Game Username:</span>
+                        <span class="preview-value">{{ player.game_username }}</span>
+                    </div>
+                    <div class="preview-row">
+                        <span class="preview-label">Rank:</span>
+                        <span class="preview-value">{{ player.rank }}</span>
+                    </div>
+                    <div class="preview-row">
+                        <span class="preview-label">Role:</span>
+                        <span class="preview-value">{{ player.role }}</span>
+                    </div>
+                    {% if player.main_agent %}
+                        <div class="preview-row">
+                            <span class="preview-label">Main Agent:</span>
+                            <span class="preview-value">{{ player.main_agent }}</span>
+                        </div>
+                    {% endif %}
+                    {% if player.kd_ratio %}
+                        <div class="preview-row">
+                            <span class="preview-label">K/D Ratio:</span>
+                            <span class="preview-value">{{ player.kd_ratio }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-actions">
+                    <a href="{{ url_for('edit_player') }}" class="btn btn-primary">Edit Profile</a>
+                    <a href="{{ url_for('view_player', player_id=player.id) }}" class="btn btn-outline">View Public Profile</a>
+                </div>
+            {% else %}
+                <div class="empty-state-small">
+                    <p>You haven't created a player profile yet.</p>
+                    <a href="{{ url_for('create_player') }}" class="btn btn-primary">Create Profile</a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Team Section -->
+        <div class="dashboard-card">
+            <div class="card-header-section">
+                <h2 class="card-title">My Team</h2>
+                {% if team %}
+                    <span class="status-badge {% if team.looking_for_players %}status-active{% else %}status-inactive{% endif %}">
+                        {% if team.looking_for_players %}Recruiting{% else %}Not Recruiting{% endif %}
+                    </span>
+                {% endif %}
+            </div>
+            
+            {% if team %}
+                <div class="team-preview">
+                    <h3 class="team-preview-name">{{ team.name }} <span class="team-preview-tag">{{ team.tag }}</span></h3>
+                    {% if team.description %}
+                        <p class="team-preview-desc">{{ team.description[:100] }}{% if team.description|length > 100 %}...{% endif %}</p>
+                    {% endif %}
+                    <p class="team-preview-members">{{ members|length }} member(s)</p>
+                </div>
+                <div class="card-actions">
+                    <a href="{{ url_for('edit_team') }}" class="btn btn-primary">Manage Team</a>
+                    <a href="{{ url_for('view_team', team_id=team.id) }}" class="btn btn-outline">View Team Page</a>
+                </div>
+                
+                <!-- Applications Section -->
+                {% if applications %}
+                    <div class="applications-section">
+                        <h4 class="applications-title">Pending Applications ({{ applications|length }})</h4>
+                        <div class="applications-list">
+                            {% for app in applications %}
+                                <div class="application-item">
+                                    <div class="application-info">
+                                        <span class="applicant-name">{{ app.game_username }}</span>
+                                        <span class="applicant-details">{{ app.rank }} • {{ app.role }} • {{ app.main_agent }}</span>
+                                    </div>
+                                    <div class="application-actions">
+                                        <a href="{{ url_for('handle_application', app_id=app.id, action='accept') }}" 
+                                           class="btn btn-sm btn-success">Accept</a>
+                                        <a href="{{ url_for('handle_application', app_id=app.id, action='reject') }}" 
+                                           class="btn btn-sm btn-danger">Reject</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="empty-state-small">
+                    <p>You don't have a team yet.</p>
+                    {% if player %}
+                        <a href="{{ url_for('create_team') }}" class="btn btn-primary">Create Team</a>
+                    {% else %}
+                        <p class="text-muted">Create a player profile first to start a team.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- My Applications Section -->
+    {% if my_applications %}
+        <div class="dashboard-card full-width">
+            <h2 class="card-title">My Applications</h2>
+            <div class="applications-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Team</th>
+                            <th>Status</th>
+                            <th>Applied On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in my_applications %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('view_team', team_id=app.team_id) }}">
+                                        {{ app.team_name }} {{ app.team_tag }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ app.status }}">{{ app.status|title }}</span>
+                                </td>
+                                <td>{{ app.created_at }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+    
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h3>Quick Actions</h3>
+        <div class="actions-grid">
+            <a href="{{ url_for('list_players') }}" class="action-card">
+                <span class="action-icon">🔍</span>
+                <span class="action-text">Find Players</span>
+            </a>
+            <a href="{{ url_for('list_teams') }}" class="action-card">
+                <span class="action-icon">🎯</span>
+                <span class="action-text">Find Teams</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

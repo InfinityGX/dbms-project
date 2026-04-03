@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Players - Valorant Team Finder{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">FIND PLAYERS</h1>
+    <p class="page-subtitle">Browse players looking for teams</p>
+</div>
+
+<div class="filters-section">
+    <form method="GET" class="filters-form">
+        <div class="filter-group">
+            <label for="rank">Rank</label>
+            <select name="rank" id="rank" class="filter-input">
+                <option value="">All Ranks</option>
+                {% for rank in ranks %}
+                    <option value="{{ rank.rank }}" {% if rank_filter == rank.rank %}selected{% endif %}>{{ rank.rank }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="role">Role</label>
+            <select name="role" id="role" class="filter-input">
+                <option value="">All Roles</option>
+                {% for role in roles %}
+                    <option value="{{ role.role }}" {% if role_filter == role.role %}selected{% endif %}>{{ role.role }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="filter-group checkbox-filter">
+            <label class="checkbox-label">
+                <input type="checkbox" name="looking" value="1" {% if looking_only %}checked{% endif %}>
+                <span class="checkmark"></span>
+                Looking for team only
+            </label>
+        </div>
+        
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <a href="{{ url_for('list_players') }}" class="btn btn-outline">Clear</a>
+        </div>
+    </form>
+</div>
+
+<div class="results-count">
+    <p>Showing {{ players|length }} player(s)</p>
+</div>
+
+{% if players %}
+    <div class="grid grid-4">
+        {% for player in players %}
+            <div class="card player-card">
+                <div class="card-header">
+                    <div class="player-rank">{{ player.rank }}</div>
+                    <div class="player-role-badge">{{ player.role }}</div>
+                </div>
+                <div class="card-body">
+                    <h3 class="player-name">{{ player.game_username }}</h3>
+                    <p class="player-meta">@{{ player.username }}</p>
+                    
+                    {% if player.main_agent %}
+                        <div class="player-stat">
+                            <span class="stat-icon">🎭</span>
+                            <span class="stat-text">{{ player.main_agent }}</span>
+                        </div>
+                    {% endif %}
+                    
+                    {% if player.kd_ratio %}
+                        <div class="player-stat">
+                            <span class="stat-icon">📊</span>
+                            <span class="stat-text">{{ player.kd_ratio }} K/D</span>
+                        </div>
+                    {% endif %}
+                    
+                    {% if player.mic %}
+                        <div class="player-stat">
+                            <span class="stat-icon">🎤</span>
+                            <span class="stat-text">Has Mic</span>
+                        </div>
+                    {% endif %}
+                    
+                    {% if player.availability %}
+                        <div class="player-stat">
+                            <span class="stat-icon">📅</span>
+                            <span class="stat-text">{{ player.availability[:30] }}{% if player.availability|length > 30 %}...{% endif %}</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="player-status">
+                        {% if player.looking_for_team %}
+                            <span class="status-badge status-active">Looking for Team</span>
+                        {% else %}
+                            <span class="status-badge status-inactive">Not Looking</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('view_player', player_id=player.id) }}" class="btn btn-block">View Profile</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <p>No players found matching your criteria.</p>
+        {% if not session.user_id %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary">Create Your Profile</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

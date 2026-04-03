@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Team - Valorant Team Finder{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card large">
+        <div class="form-header">
+            <h1 class="form-title">MANAGE TEAM</h1>
+            <p class="form-subtitle">Update your team settings</p>
+        </div>
+        
+        <form method="POST" class="team-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Team Name *</label>
+                    <input type="text" id="name" name="name" required 
+                           value="{{ team.name }}" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="tag">Team Tag</label>
+                    <input type="text" id="tag" name="tag" maxlength="5"
+                           value="{{ team.tag or '' }}" class="form-input">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3" class="form-input">{{ team.description or '' }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="requirements">Requirements for Joining</label>
+                <textarea id="requirements" name="requirements" rows="3" class="form-input">{{ team.requirements or '' }}</textarea>
+            </div>
+            
+            <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="looking_for_players" value="1" {% if team.looking_for_players %}checked{% endif %}>
+                    <span class="checkmark"></span>
+                    Currently looking for players
+                </label>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-large">Save Changes</button>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Team Members Section -->
+<div class="section">
+    <h2 class="section-title">Team Members</h2>
+    {% if members %}
+        <div class="members-list">
+            {% for member in members %}
+                <div class="member-card">
+                    <div class="member-info">
+                        <h4 class="member-name">{{ member.game_username }}</h4>
+                        <p class="member-details">{{ member.rank }} • {{ member.role }} • {{ member.main_agent }}</p>
+                        <span class="member-role-badge">{{ member.role }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No team members yet.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

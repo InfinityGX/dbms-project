@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ player.game_username }} - Player Profile{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-header">
+        <div class="profile-rank-badge">{{ player.rank }}</div>
+        <div class="profile-title">
+            <h1 class="profile-name">{{ player.game_username }}</h1>
+            <p class="profile-username">@{{ player.username }}</p>
+        </div>
+        <div class="profile-status">
+            {% if player.looking_for_team %}
+                <span class="status-badge status-active status-large">Looking for Team</span>
+            {% else %}
+                <span class="status-badge status-inactive status-large">Not Looking</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="profile-grid">
+        <div class="profile-main">
+            <div class="profile-card">
+                <h2 class="card-title">Player Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Role</span>
+                        <span class="info-value role-badge">{{ player.role }}</span>
+                    </div>
+                    {% if player.main_agent %}
+                        <div class="info-item">
+                            <span class="info-label">Main Agent</span>
+                            <span class="info-value">{{ player.main_agent }}</span>
+                        </div>
+                    {% endif %}
+                    {% if player.kd_ratio %}
+                        <div class="info-item">
+                            <span class="info-label">K/D Ratio</span>
+                            <span class="info-value">{{ player.kd_ratio }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="info-item">
+                        <span class="info-label">Microphone</span>
+                        <span class="info-value">{% if player.mic %}Yes 🎤{% else %}No{% endif %}</span>
+                    </div>
+                    {% if player.availability %}
+                        <div class="info-item full-width">
+                            <span class="info-label">Availability</span>
+                            <span class="info-value">{{ player.availability }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if player.bio %}
+                <div class="profile-card">
+                    <h2 class="card-title">About</h2>
+                    <p class="bio-text">{{ player.bio }}</p>
+                </div>
+            {% endif %}
+            
+            {% if team %}
+                <div class="profile-card">
+                    <h2 class="card-title">Current Team</h2>
+                    <div class="team-link-card">
+                        <h3>{{ team.name }} <span class="team-tag">{{ team.tag }}</span></h3>
+                        <a href="{{ url_for('view_team', team_id=team.id) }}" class="btn btn-outline">View Team</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="profile-sidebar">
+            <div class="profile-card contact-card">
+                <h3 class="sidebar-title">Contact</h3>
+                <p class="contact-info">
+                    <span class="contact-label">Email:</span>
+                    <span class="contact-value">{{ player.email }}</span>
+                </p>
+                
+                {% if player.looking_for_team and session.user_id and player.user_id != session.user_id %}
+                    <div class="contact-actions">
+                        <p class="contact-hint">Invite this player to your team through the team management page.</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if session.user_id and player.user_id == session.user_id %}
+                <div class="profile-card actions-card">
+                    <h3 class="sidebar-title">Actions</h3>
+                    <a href="{{ url_for('edit_player') }}" class="btn btn-primary btn-block">Edit Profile</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
