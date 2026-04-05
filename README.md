@@ -98,6 +98,3 @@ The application features a dark Valorant-themed UI with:
 - Responsive design for mobile and desktop
 - Clean navigation and user flows
 
-## License
-
-MIT License - Feel free to use and modify for your college!
